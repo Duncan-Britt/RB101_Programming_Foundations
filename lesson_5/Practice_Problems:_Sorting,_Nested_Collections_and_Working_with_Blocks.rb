@@ -107,5 +107,82 @@
 
 # Practice Problem 12
 
-arr = [[:a, 1], ['b', 'two'], ['sea', {c: 3}], [{a: 1, b: 2, c: 3, d: 4}, 'D']]
-# expected return value: {:a=>1, "b"=>"two", "sea"=>{:c=>3}, {:a=>1, :b=>2, :c=>3, :d=>4}=>"D"}
+# arr = [[:a, 1], ['b', 'two'], ['sea', {c: 3}], [{a: 1, b: 2, c: 3, d: 4}, 'D']]
+# # expected return value: {:a=>1, "b"=>"two", "sea"=>{:c=>3}, {:a=>1, :b=>2, :c=>3, :d=>4}=>"D"}
+# hash = arr.each_with_object({}) do |sub_arr, hash|
+#   hash[sub_arr[0]] = sub_arr[1]
+# end
+# p hash
+
+# Practice Problem 13
+
+# arr = [[1, 6, 7], [1, 4, 9], [1, 8, 3]]
+# new = arr.sort_by do |sub|
+#   sub.select { |e| e.odd? }
+# end
+# p new
+
+# Practice Problem 14
+# hsh = {
+#   'grape' => {type: 'fruit', colors: ['red', 'green'], size: 'small'},
+#   'carrot' => {type: 'vegetable', colors: ['orange'], size: 'medium'},
+#   'apple' => {type: 'fruit', colors: ['red', 'green'], size: 'medium'},
+#   'apricot' => {type: 'fruit', colors: ['orange'], size: 'medium'},
+#   'marrow' => {type: 'vegetable', colors: ['green'], size: 'large'},
+# }
+# new = hsh.map do |_, info|
+#   case info[:type]
+#   when 'fruit'
+#     info[:colors].map { |e| e.capitalize }
+#   when 'vegetable'
+#     info[:size].upcase
+#   end
+# end
+# p new
+
+# Practice Problem 15
+# arr = [{a: [1, 2, 3]}, {b: [2, 4, 6], c: [3, 6], d: [4]}, {e: [8], f: [6, 10]}]
+# new = arr.select do |hash|
+#   hash.all? do |_, array|
+#     array.all? { |n| n.even? }
+#   end
+# end
+# p new
+
+# Practice Problem 16
+HEX_CHARS = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f']
+
+def new_UUID
+  array = []
+  8.times do
+    array << HEX_CHARS.sample
+  end
+  array << '-'
+  3.times do
+    4.times do
+      array << HEX_CHARS.sample
+    end
+    array << '-'
+  end
+  12.times do
+    array << HEX_CHARS.sample
+  end
+  array.join
+end
+
+p new_UUID
+
+def uuid
+  str = '        -    -    -    -            '
+  array = str.chars
+  array.map! do |ch|
+    if ch == '-'
+      '-'
+    else
+      HEX_CHARS.sample
+    end
+  end
+  array.join
+end
+
+p uuid
