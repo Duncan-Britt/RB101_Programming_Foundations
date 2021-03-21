@@ -37,8 +37,8 @@ def player_choose
   loop do
     puts "Choose a spot"
     spot = gets.chomp
-    break if SPOTS.keys.include?(spot)
-    puts 'Invalid input. Please enter a digit (1-9).'
+    break if SPOTS.keys.include?(spot) && $board.include?(spot)
+    puts 'Invalid spot. Please enter an available space (1-9).'
   end
 
   $board[SPOTS[spot]] = 'X'
@@ -64,20 +64,28 @@ def ai_choose
     end
   end
 
-  most_xs_in_WINS = nil
+  most_xs_in_WINS = []
   count = 0
 
   num_x_in_WINS.each do |e|
     if e[0] >= count
       count = e[0]
-      most_xs_in_WINS = e[1]
+      most_xs_in_WINS << e[1]
     end
   end
-
-  move = WINS[most_xs_in_WINS].select do |i|
-    left.any? { |e| SPOTS[e] == i }
-  end.sample
+  i = -1
+  move = nil
+  # binding.pry
+  loop do
+    break unless most_xs_in_WINS[i]
+    move = WINS[most_xs_in_WINS[i]].select do |idx|
+      left.any? { |e| SPOTS[e] == idx }
+    end.sample
+    break if move
+    i -= 1
+  end
   puts "move: #{move}"
+  # binding.pry
   if move
     $board[move] = 'O'
     puts "here"
