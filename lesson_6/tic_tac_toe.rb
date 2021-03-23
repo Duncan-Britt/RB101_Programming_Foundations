@@ -70,8 +70,17 @@ def endangered_square(brd)
     brd.values_at(*line).count(INITIAL_MARKER) == 1
   end
   if danger_lines.empty?
-    if brd[5] == ' '
+    case
+    when brd[5] == ' '
       return 5
+    when brd[1] == ' '
+      return 1
+    when brd[3] == ' '
+      return 3
+    when brd[7] == ' '
+      return 7
+    when brd[9] == ' '
+      return 9
     else
       return empty_squares(brd).sample
     end
@@ -156,7 +165,7 @@ end
 
 def game(current_player, player_score=0, computer_score=0)
   board = initialize_board
-  
+
   loop do
     display_board(board, player_score, computer_score)
     place_piece!(board, current_player)
