@@ -36,7 +36,7 @@ def hand_value(non_ace_value, ace_count=0)
 end
 
 def not_aces(cards)
-  cards.reject { |card| card == 'Ace'}
+  cards.reject { |card| card == 'Ace' }
 end
 
 def cards_value(cards) # doesn't take aces
@@ -52,30 +52,30 @@ def total_value(cards)
   hand_value(non_ace_value, ace_count)
 end
 
-def random! # returns and removes random card from DECK
-  DECK.delete_at(rand(DECK.length))
+def random!(deck) # returns and removes random card from DECK
+  deck.delete_at(rand(deck.length))
 end
 
-def initial_hand
+def initial_hand(deck)
   player_cards = []
   dealer_cards = []
-  player_cards << random!()
-  dealer_cards << random!()
-  player_cards << random!()
-  dealer_cards << random!()
+  player_cards << random!(deck)
+  dealer_cards << random!(deck)
+  player_cards << random!(deck)
+  dealer_cards << random!(deck)
   return player_cards, dealer_cards
 end
 
 # perhaps not necessary
-def hit!(player)
-  player.unshift(random!())
+def hit!(player, deck)
+  player.unshift(random!(deck))
 end
 
 def print_cards(cards)
   return "#{cards[0]} and #{cards[1]}" if cards.count == 2
   cards = cards.dup
   n_before_and = cards.length - 2
-  result = "#{cards.shift}"
+  result = cards.shift
   n_before_and.times do
     result += ", #{cards.shift}"
   end
@@ -114,10 +114,9 @@ def display_dealer_bust(dealer_cards)
 end
 
 def winner(player_cards, dealer_cards)
-  case
-  when total_value(player_cards) > total_value(dealer_cards)
+  if total_value(player_cards) > total_value(dealer_cards)
     'You!'
-  when total_value(player_cards) < total_value(dealer_cards)
+  elsif total_value(player_cards) < total_value(dealer_cards)
     'the dealer.'
   else
     "No one. It's a tie"
@@ -135,8 +134,8 @@ end
 
 # GAME BEGINS
 loop do
-  DECK = initialize_deck()
-  player_cards, dealer_cards = initial_hand()
+  deck = initialize_deck
+  player_cards, dealer_cards = initial_hand(deck)
 
   busted = false
   # PLAYER TURN
@@ -151,7 +150,7 @@ loop do
       puts "Input must start with 'h' or 's'"
     end
     break if choice.start_with?('s')
-    hit!(player_cards)
+    hit!(player_cards, deck)
     if bust?(player_cards)
       display_bust(player_cards)
       busted = true
@@ -163,7 +162,7 @@ loop do
   loop do
     break if busted
     break if total_value(dealer_cards) >= 17
-    hit!(dealer_cards)
+    hit!(dealer_cards, deck)
     if bust?(dealer_cards)
       display_dealer_bust(dealer_cards)
       busted = true
