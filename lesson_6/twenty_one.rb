@@ -69,7 +69,6 @@ def initial_hand(deck)
   return player_cards, dealer_cards
 end
 
-# perhaps not necessary
 def hit!(player, deck)
   player.unshift(random!(deck))
 end
