@@ -18,6 +18,7 @@ CARD_VALUES = {
 
 MAX_VALUE = 21
 DEALER_MIN = 17
+WINNING_SCORE = 5
 
 def initialize_deck
   CARD_VALUES.keys * 4
@@ -84,10 +85,10 @@ def print_cards(cards)
   result + ", and #{cards.shift}"
 end
 
-def display_turn(player_cards, dealer_cards, player_wins, dealer_wins)
+def display_turn(player_cards, dealer_cards, scores)
   system 'clear'
   puts "\n"
-  puts "Player score: #{player_wins}. Dealer score: #{dealer_wins}"
+  puts "Player score: #{scores[:player]}. Dealer score: #{scores[:dealer]}"
   puts "\n"
   puts "  Dealer has: #{dealer_cards[0]} and an unknown card"
   puts "  You have: #{print_cards(player_cards)}"
@@ -113,7 +114,8 @@ def display_dealer_bust(dealer_cards, dealer_total)
   system 'clear'
   puts "\n\n\n"
   puts "Dealer busted. You win!"
-  puts "His hand was: #{print_cards(dealer_cards)} for a total value of #{dealer_total}"
+  puts "His hand was: #{print_cards(dealer_cards)} "\
+       "for a total value of #{dealer_total}"
   puts "\n\n"
 end
 
@@ -131,34 +133,49 @@ def declare_winner(player_cards, dealer_cards, player_total, dealer_total)
   system 'clear'
   puts "\n\n\n"
   puts "  Winner is: #{winner(player_total, dealer_total)}"
-  puts "  You had #{print_cards(player_cards)} for a total value of #{player_total}"
-  puts "  The dealer had #{print_cards(dealer_cards)} for a total value of #{dealer_total}"
+  puts "  You had #{print_cards(player_cards)} "\
+       "for a total value of #{player_total}"
+  puts "  The dealer had #{print_cards(dealer_cards)} "\
+       "for a total value of #{dealer_total}"
   puts "\n\n"
 end
 
-def update_score(player_total, dealer_total)
-  if player_total > MAX_VALUE
-    return 0, 1
-  elsif dealer_total > MAX_VALUE
-    return 1, 0
-  elsif player_total > dealer_total
-    return 1, 0
+def get_winner(player_total, dealer_total)
+  if player_total > dealer_total
+    :player
   elsif dealer_total > player_total
-    return 0, 1
+    :dealer
   else
-    return 0, 0
+    :tie
   end
+end
+
+def update_score(scores, player_total, dealer_total)
+  winner = get_winner(player_total, dealer_total)
+  return if winner == :tie
+  scores[winner] += 1
 end
 
 def display_grand_winner(winner)
   puts "The grand winner is the #{winner}!"
   puts "Thanks for playing."
-  sleep(10)
+  sleep(2)
+end
+
+def play_again?
+  puts "Play again? (y)"
+  input = gets.chomp.downcase
+  if input.start_with?('y')
+    true
+  else
+    false
+  end
 end
 
 # GAME BEGINS
 player_wins = 0
 dealer_wins = 0
+scores = { player: 0, dealer: 0 }
 loop do
   deck = initialize_deck
   player_cards, dealer_cards = initial_hand(deck)
@@ -167,20 +184,20 @@ loop do
   # PLAYER TURN
   player_total = total_value(player_cards)
   loop do
-    display_turn(player_cards, dealer_cards, player_wins, dealer_wins)
+    display_turn(player_cards, dealer_cards, scores)
     choice = ''
     loop do
       choice = gets.chomp.downcase
       # Validate input
       break if choice.start_with?('h') || choice.start_with?('s')
-      display_turn(player_cards, dealer_cards)
+      display_turn(player_cards, dealer_cards, scores)
       puts "Input must start with 'h' or 's'"
     end
     break if choice.start_with?('s')
     hit!(player_cards, deck)
     player_total = total_value(player_cards)
     if bust?(player_total)
-      dealer_wins += 1
+      scores[:dealer] += 1
       display_bust(player_cards, player_total)
       busted = true
       break
@@ -190,12 +207,11 @@ loop do
   # DEALER TURN
   dealer_total = total_value(dealer_cards)
   loop do
-    break if busted
-    break if dealer_total >= DEALER_MIN
+    break if dealer_total >= DEALER_MIN || busted
     hit!(dealer_cards, deck)
     dealer_total = total_value(dealer_cards)
     if bust?(dealer_total)
-      player_wins += 1
+      scores[:player] += 1
       display_dealer_bust(dealer_cards, dealer_total)
       busted = true
     end
@@ -203,21 +219,18 @@ loop do
 
   unless busted
     declare_winner(player_cards, dealer_cards, player_total, dealer_total)
-    player_inc, dealer_inc = update_score(player_total, dealer_total)
-    player_wins += player_inc
-    dealer_wins += dealer_inc
+    update_score(scores, player_total, dealer_total)
   end
 
-  if player_wins == 5
+  if scores[:player] == WINNING_SCORE
     display_grand_winner('player')
-    break
-  elsif dealer_wins == 5
+    scores = { player: 0, dealer: 0 }
+  elsif scores[:dealer] == WINNING_SCORE
     display_grand_winner('dealer')
-    break
+    scores = { player: 0, dealer: 0 }
   end
-  puts "Play again? (y)"
-  input = gets.chomp.downcase
-  break unless input.start_with?('y')
+
+  break unless play_again?
 end
 
 system 'clear'
